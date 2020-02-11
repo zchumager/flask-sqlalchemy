@@ -1,5 +1,6 @@
 # https://marshmallow-sqlalchemy.readthedocs.io/en/latest/
 # https://inneka.com/programming/python/using-sqlalchemy-session-from-flask-raises-sqlite-objects-created-in-a-thread-can-only-be-used-in-that-same-thread/
+# https://pythonprogramming.net/flask-email-tutorial/
 # https://stackoverflow.com/questions/37058567/configure-flask-mail-to-use-gmail
 # https://www.geeksforgeeks.org/generating-random-ids-using-uuid-python/
 """
@@ -62,7 +63,7 @@ def register_user():
         mail.send(msg)
 
         return jsonify({'status': 'Mail sent successfully', 'secret_key': generated_uuid})
-    except:
+    except Exception:
         return jsonify({'status': 'Fail Process'})
 
 
