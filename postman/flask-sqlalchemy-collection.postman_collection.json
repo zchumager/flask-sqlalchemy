@@ -136,7 +136,7 @@
 									"    pm.response.to.have.status(200);",
 									"});",
 									"",
-									"pm.test(\"Your test name\", function () {",
+									"pm.test(\"Setting SECRET KEY\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    ",
 									"    pm.environment.set(\"SECRET_KEY\", jsonData.secret_key);",
@@ -180,6 +180,20 @@
 				},
 				{
 					"name": "activate_account",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "33227250-85a8-4cb9-b8f2-42d4dd9c6a03",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -210,6 +224,91 @@
 							"path": [
 								"activate_account",
 								"{{SECRET_KEY}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Generate Session",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "df755cde-3d07-40dc-b9b9-b0bb3f39e2ab",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Generate Access Token\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    ",
+									"    pm.environment.set(\"ACCESS_TOKEN\", jsonData.access_token);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"username\": \"pedro.machado@itexico.com\",\n\t\"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BASE_URL_LOCAL}}/generate_session/",
+							"host": [
+								"{{BASE_URL_LOCAL}}"
+							],
+							"path": [
+								"generate_session",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List All Users",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{ACCESS_TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BASE_URL_LOCAL}}/users/",
+							"host": [
+								"{{BASE_URL_LOCAL}}"
+							],
+							"path": [
+								"users",
+								""
 							]
 						}
 					},

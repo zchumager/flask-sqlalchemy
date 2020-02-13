@@ -20,6 +20,10 @@ from flask import Flask, request, jsonify
 from flask_mail import Mail
 from flask_mail import Message
 import uuid
+from flask_jwt_extended import (
+    JWTManager, jwt_required, create_access_token,
+    get_jwt_identity
+)
 
 app = Flask(__name__)
 
@@ -37,7 +41,11 @@ app.config.update(
     MAIL_PASSWORD='klfsmfzzhngxyhci'  # Generated Password from Google Account Security
 )
 
+# Setup the Flask-JWT-Extended extension
+app.config['JWT_SECRET_KEY'] = 'secret-key-for-encryption'  # Change this!
+
 mail = Mail(app)
+jwt = JWTManager(app)
 
 
 @app.route('/register_user/', methods=['POST'])
@@ -51,9 +59,9 @@ def register_user():
         sender="pedro.machado@tala.co",
         recipients=[recipient]
     )
-    msg.body = f'''Hi dear {recipient} 
-        Welcome to our community please follow the next url to activate your account 
-        http://127.0.0.1:5000/activate_account/{generated_uuid} '''
+    msg.body = f'''Hi dear {recipient}
+Welcome to our community please follow the next url to activate your account
+http://127.0.0.1:5000/activate_account/{generated_uuid} '''
 
     try:
         user = User(username=recipient, password="password123", is_active=0, secret_key=generated_uuid)
@@ -75,6 +83,31 @@ def activate_account(generated_uuid):
     session.commit()
 
     return "Your Account has been activated"
+
+
+@app.route('/generate_session/')
+def generate_session():
+    request_body = request.get_json()
+    user = session.query(User).filter(
+        User.username == request_body.get('username'),
+        User.password == request_body.get('password'),
+        User.is_active == True).first()
+
+    if user is not None:
+        # Decrypt identity
+        access_token = create_access_token(identity=user.username)
+
+        return jsonify(access_token=access_token)
+    else:
+        return "Session Not Generated"
+
+
+@app.route('/users/')
+@jwt_required
+def list_users():
+    current_user = get_jwt_identity()
+
+    return jsonify(user_schema.dump(session.query(User).all(), many=True))
 
 
 # Tear Down for SQL Alchemy
